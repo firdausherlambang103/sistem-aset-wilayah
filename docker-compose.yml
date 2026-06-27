@@ -1,0 +1,31 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  db_nganjuk:
+    image: postgis/postgis:15-3.3
+    container_name: postgis_aset_wilayah
+    environment:
+      POSTGRES_USER: bpn_user
+      POSTGRES_PASSWORD: bpn_password
+      POSTGRES_DB: db_berkas_nganjuk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  martin_nganjuk:
+    image: maplibre/martin:latest
+    container_name: martin_aset_wilayah
+    restart: unless-stopped
+    ports:
+      # Mengarahkan port 3001 di host ke port 3000 di dalam container
+      - "3001:3000"
+    environment:
+      - DATABASE_URL=postgresql://bpn_user:bpn_password@db_nganjuk:5432/db_berkas_nganjuk
+    depends_on:
+      - db_nganjuk
+
+volumes:
+  postgis_data:
