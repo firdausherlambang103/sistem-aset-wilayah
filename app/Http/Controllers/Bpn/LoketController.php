@@ -11,12 +11,48 @@ class LoketController extends Controller
 {
     public function dashboard()
     {
-        $hariIni = Berkas::whereDate('created_at', Carbon::today())->count();
+        // 1. Statistik Kinerja (Kartu Atas)
+        $masukHariIni = Berkas::whereDate('created_at', Carbon::today())->count();
+        $selesaiHariIni = Berkas::where('status_berkas', 'selesai')
+                                ->whereDate('updated_at', Carbon::today())
+                                ->count();
         $sisaKemarin = Berkas::whereDate('created_at', '<', Carbon::today())
-                             ->where('status_berkas', '!=', 'selesai')->count();
-        $selesai = Berkas::where('status_berkas', 'selesai')->count();
+                            ->where('status_berkas', '!=', 'selesai')
+                            ->count();
 
-        return view('bpn.dashboard', compact('hariIni', 'sisaKemarin', 'selesai'));
+        // 2. Data Riwayat Detail (Digunakan untuk Tab 'Belum Dikerjakan' & 'Sudah Dikerjakan')
+        // Memuat relasi mitra untuk mendapatkan nama pemohon/pengisi
+        $semuaBerkas = Berkas::with(['mitra.profilMitra'])->orderBy('updated_at', 'desc')->get();
+
+        // 3. Data Rekap Kinerja Petugas / Mitra (Tab ke-3)
+        // Menghitung jumlah berkas yang dimasukkan oleh masing-masing Mitra
+        $mitras = User::where('role', 'mitra')->with('profilMitra')->get();
+        $rekapPengisi = [];
+
+        foreach ($mitras as $mitra) {
+            $berkasMitra = Berkas::where('mitra_id', $mitra->id)->get();
+            
+            if ($berkasMitra->count() > 0) {
+                $rekapPengisi[] = [
+                    'nama' => $mitra->profilMitra->nama ?? $mitra->email,
+                    'total_entri' => $berkasMitra->count(),
+                    'total_selesai' => $berkasMitra->where('status_berkas', 'selesai')->count(),
+                    'input_hari_ini' => $berkasMitra->where('created_at', '>=', Carbon::today())->count(),
+                    'sisa_kemarin' => $berkasMitra->where('created_at', '<', Carbon::today())
+                                                ->where('status_berkas', '!=', 'selesai')
+                                                ->count(),
+                ];
+            }
+        }
+
+        // Mengurutkan rekap berdasarkan total entri terbanyak
+        usort($rekapPengisi, function($a, $b) {
+            return $b['total_entri'] <=> $a['total_entri'];
+        });
+
+        return view('bpn.dashboard', compact(
+            'masukHariIni', 'selesaiHariIni', 'sisaKemarin', 'semuaBerkas', 'rekapPengisi'
+        ));
     }
 
     public function index()
