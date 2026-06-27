@@ -8,20 +8,26 @@ use App\Models\DataPlotting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Models\Kecamatan;
+use App\Models\Desa;
+use App\Models\JenisHak;
 
 class BerkasController extends Controller
 {
     public function indexBiasa()
     {
-        // Mengambil data berkas khusus tipe biasa milik mitra yang sedang login
         $berkas = Berkas::where('tipe_berkas', 'biasa')
                         ->where('mitra_id', auth()->id())
                         ->orderBy('created_at', 'desc')
                         ->get();
+                        
+        $kecamatans = Kecamatan::orderBy('nama_kecamatan')->get();
+        $desas = Desa::all(); // Dikirim semua untuk difilter oleh Alpine.js
+        $jenisHaks = JenisHak::orderBy('nama_hak')->get();
 
-        return view('mitra.ruang_kerja_biasa', compact('berkas'));
+        return view('mitra.ruang_kerja_biasa', compact('berkas', 'kecamatans', 'desas', 'jenisHaks'));
     }
-    
+
     // 1. Simpan Berkas Biasa + Generate No Berkas Unik
     public function storeBerkasBiasa(Request $request)
     {
