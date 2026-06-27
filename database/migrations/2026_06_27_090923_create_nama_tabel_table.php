@@ -1,5 +1,4 @@
 <?php
-// database/migrations/2026_01_01_000001_create_system_tables.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,18 +12,7 @@ return new class extends Migration
         // 1. Pastikan Ekstensi PostGIS Aktif
         DB::statement('CREATE EXTENSION IF NOT EXISTS postgis;');
 
-        // 2. Tabel Users
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->enum('role', ['admin', 'bpn', 'mitra']);
-            $table->boolean('is_approved')->default(false);
-            $table->rememberToken();
-            $table->timestamps();
-        });
-
-        // 3. Tabel Profil BPN
+        // 2. Tabel Profil BPN
         Schema::create('profil_bpn', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
@@ -35,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 4. Tabel Profil Mitra
+        // 3. Tabel Profil Mitra
         Schema::create('profil_mitra', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
@@ -46,7 +34,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 5. Tabel Berkas
+        // 4. Tabel Berkas
         Schema::create('berkas', function (Blueprint $table) {
             $table->id();
             $table->string('nomer_berkas', 6)->unique(); // 6 digit acak angka/huruf
@@ -67,7 +55,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 6. Tabel Data Plotting (Spasial)
+        // 5. Tabel Data Plotting (Spasial)
         Schema::create('data_plotting', function (Blueprint $table) {
             $table->id();
             $table->foreignId('berkas_id')->constrained('berkas')->onDelete('cascade');
@@ -78,7 +66,7 @@ return new class extends Migration
         // Menambahkan kolom geometri PostGIS secara manual (Mendukung Point/Polygon)
         DB::statement('ALTER TABLE data_plotting ADD COLUMN geom geometry(Geometry, 4326);');
 
-        // 7. Tabel Dokumen SPS & Pembayaran
+        // 6. Tabel Dokumen SPS & Pembayaran
         Schema::create('dokumen_sps', function (Blueprint $table) {
             $table->id();
             $table->foreignId('berkas_id')->constrained('berkas')->onDelete('cascade');
@@ -90,7 +78,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 8. Tabel Riwayat Berkas (Tracking & Logs)
+        // 7. Tabel Riwayat Berkas (Tracking & Logs)
         Schema::create('riwayat_berkas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('berkas_id')->constrained('berkas')->onDelete('cascade');
@@ -101,7 +89,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 9. Tabel Template Notifikasi WA
+        // 8. Tabel Template Notifikasi WA
         Schema::create('template_notifikasi_wa', function (Blueprint $table) {
             $table->id();
             $table->string('kode_pemicu')->unique(); // misal: 'berkas_baru', 'pembayaran_lunas'
@@ -119,6 +107,5 @@ return new class extends Migration
         Schema::dropIfExists('berkas');
         Schema::dropIfExists('profil_mitra');
         Schema::dropIfExists('profil_bpn');
-        Schema::dropIfExists('users');
     }
 };
