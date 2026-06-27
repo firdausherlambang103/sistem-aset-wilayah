@@ -1,13 +1,13 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="shrink-0 flex items-center">
                     <a href="{{ url('/') }}" class="flex items-center gap-2">
-                        <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">
+                        <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold shadow-sm">
                             <i class="fa-solid fa-map-location-dot"></i>
                         </div>
-                        <span class="font-bold text-slate-800 text-lg hidden sm:block">Sistem Nganjuk</span>
+                        <span class="font-black text-slate-800 text-lg hidden sm:block tracking-tight">Sistem Nganjuk</span>
                     </a>
                 </div>
 
@@ -29,8 +29,14 @@
                         <x-nav-link :href="route('bpn.loket.index')" :active="request()->routeIs('bpn.loket.*')">
                             <i class="fa-solid fa-inbox mr-2"></i> Loket Penerimaan
                         </x-nav-link>
-                        <x-nav-link href="#">
+                        <x-nav-link :href="route('bpn.pembayaran.index')" :active="request()->routeIs('bpn.pembayaran.*')">
                             <i class="fa-solid fa-file-invoice-dollar mr-2"></i> Loket Pembayaran
+                        </x-nav-link>
+                        <x-nav-link :href="route('bpn.pelaksana.index')" :active="request()->routeIs('bpn.pelaksana.*')">
+                            <i class="fa-solid fa-layer-group mr-2"></i> Pelaksana Kegiatan
+                        </x-nav-link>
+                        <x-nav-link :href="route('bpn.peta')" :active="request()->routeIs('bpn.peta')">
+                            <i class="fa-solid fa-map mr-2"></i> Peta Utama Nganjuk
                         </x-nav-link>
                     @endif
 
@@ -39,7 +45,7 @@
                             <i class="fa-solid fa-folder-open mr-2"></i> Berkas Fisik
                         </x-nav-link>
                         <x-nav-link :href="route('mitra.plotting')" :active="request()->routeIs('mitra.plotting')">
-                            <i class="fa-solid fa-map mr-2"></i> Plotting Spasial
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> Plotting Spasial
                         </x-nav-link>
                     @endif
                 </div>
@@ -48,7 +54,8 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-3 py-2 border border-slate-200 text-sm leading-4 font-bold rounded-lg text-slate-600 bg-slate-50 hover:text-slate-800 hover:bg-slate-100 focus:outline-none transition ease-in-out duration-150 shadow-sm">
+                            <i class="fa-solid fa-circle-user mr-2 text-blue-600 text-lg"></i>
                             <div>{{ Auth::user()->email ?? 'Pengguna' }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -59,16 +66,16 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                        <x-dropdown-link :href="route('profile.edit')" class="font-semibold text-slate-700">
+                            <i class="fa-solid fa-user-pen mr-2 text-slate-400"></i> {{ __('Profile') }}
                         </x-dropdown-link>
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                                this.closest('form').submit();" class="font-semibold text-rose-600 hover:text-rose-700">
+                                <i class="fa-solid fa-right-from-bracket mr-2 text-rose-400"></i> {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -86,11 +93,15 @@
         </div>
     </div>
 
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-slate-50 border-b border-slate-200">
         <div class="pt-2 pb-3 space-y-1">
+            
             @if(Auth::check() && Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                     User & Approval
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.wilayah.index')" :active="request()->routeIs('admin.wilayah.*')">
+                    Master Wilayah
                 </x-responsive-nav-link>
             @endif
 
@@ -100,6 +111,15 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('bpn.loket.index')" :active="request()->routeIs('bpn.loket.*')">
                     Loket Penerimaan
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('bpn.pembayaran.index')" :active="request()->routeIs('bpn.pembayaran.*')">
+                    Loket Pembayaran
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('bpn.pelaksana.index')" :active="request()->routeIs('bpn.pelaksana.*')">
+                    Pelaksana Kegiatan
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('bpn.peta')" :active="request()->routeIs('bpn.peta')">
+                    Peta Utama Nganjuk
                 </x-responsive-nav-link>
             @endif
 
@@ -113,9 +133,10 @@
             @endif
         </div>
 
-        <div class="pt-4 pb-1 border-t border-gray-200">
+        <div class="pt-4 pb-1 border-t border-slate-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->email ?? '' }}</div>
+                <div class="font-bold text-base text-slate-800">{{ Auth::user()->email ?? '' }}</div>
+                <div class="font-medium text-sm text-slate-500 capitalize">{{ Auth::user()->role ?? '' }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
@@ -127,7 +148,7 @@
                     @csrf
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                                        this.closest('form').submit();" class="text-rose-600">
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>
