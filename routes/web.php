@@ -91,3 +91,5 @@ Route::middleware(['auth'])->prefix('mitra')->group(function () {
     Route::post('/berkas/plotting', [BerkasController::class, 'storeBerkasPlotting'])->name('berkas.plotting.store');
     
 });
+
+require __DIR__.'/auth.php';
