@@ -17,7 +17,7 @@
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                             <i class="fa-solid fa-users mr-2"></i> User & Approval
                         </x-nav-link>
-                        <x-nav-link href="#">
+                        <x-nav-link :href="route('admin.wilayah.index')" :active="request()->routeIs('admin.wilayah.*')"> 
                             <i class="fa-solid fa-map-location-dot mr-2"></i> Master Wilayah
                         </x-nav-link>
                     @endif
