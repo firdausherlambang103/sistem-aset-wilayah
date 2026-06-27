@@ -18,5 +18,6 @@ Route::prefix('mitra')->group(function () {
     // Endpoint untuk memproses form pengajuan
     Route::post('/berkas/biasa', [BerkasController::class, 'storeBerkasBiasa'])->name('berkas.biasa.store');
     Route::post('/berkas/plotting', [BerkasController::class, 'storeBerkasPlotting'])->name('berkas.plotting.store');
+    Route::get('/mitra/berkas-biasa', [App\Http\Controllers\Mitra\BerkasController::class, 'indexBiasa'])->name('mitra.berkas.biasa');
     
 });

@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class BerkasController extends Controller
 {
+    public function indexBiasa()
+    {
+        // Mengambil data berkas khusus tipe biasa milik mitra yang sedang login
+        $berkas = Berkas::where('tipe_berkas', 'biasa')
+                        ->where('mitra_id', auth()->id())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        return view('mitra.ruang_kerja_biasa', compact('berkas'));
+    }
+    
     // 1. Simpan Berkas Biasa + Generate No Berkas Unik
     public function storeBerkasBiasa(Request $request)
     {
