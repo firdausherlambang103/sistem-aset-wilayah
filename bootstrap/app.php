@@ -11,11 +11,25 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        
+        // Mengatur arah redirect untuk user yang SUDAH LOGIN
+        $middleware->redirectUsersTo(function (Request $request) {
+            $role = auth()->user()->role ?? 'mitra';
+            return match ($role) {
+                'admin' => route('admin.users.index'),
+                'bpn'   => route('bpn.dashboard'),
+                'mitra' => route('mitra.berkas.biasa'),
+                default => '/',
+            };
+        });
+
+        // Mendaftarkan alias middleware agar mudah dipanggil di rute
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\IsAdmin::class,
+        ]);
+
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
-        );
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
     })->create();
