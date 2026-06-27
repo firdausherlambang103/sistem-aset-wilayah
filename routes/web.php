@@ -20,8 +20,9 @@ use App\Http\Controllers\Admin\WilayahController;
 |--------------------------------------------------------------------------
 */
 
+// Jika ingin langsung ke halaman Login
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
 
 // --- RUTE PROFIL (Bawaan Laravel Breeze) ---
@@ -90,6 +91,3 @@ Route::middleware(['auth'])->prefix('mitra')->group(function () {
     Route::post('/berkas/plotting', [BerkasController::class, 'storeBerkasPlotting'])->name('berkas.plotting.store');
     
 });
-
-// File rute otentikasi Breeze (Login, Register, Lupa Password, dll)
-require __DIR__.'/auth.php';
