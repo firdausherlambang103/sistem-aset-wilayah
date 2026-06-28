@@ -41,7 +41,7 @@ class AuthenticatedSessionController extends Controller
 
         // 2. Redirect berdasarkan Role
         return match ($user->role) {
-            'admin' => redirect()->route('admin.dashboard'), // Asumsi rute admin
+            'admin' => redirect()->route('admin.users.index'), 
             'bpn'   => redirect()->route('bpn.dashboard'),
             'mitra' => redirect()->route('mitra.berkas.biasa'),
             default => redirect('/'),
