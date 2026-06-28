@@ -22,7 +22,7 @@
                         </x-nav-link>
                     @endif
 
-                    @if(Auth::check() && Auth::user()->role === 'bpn')
+                    @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'bpn']))
                         <x-nav-link :href="route('bpn.dashboard')" :active="request()->routeIs('bpn.dashboard')">
                             <i class="fa-solid fa-gauge mr-2"></i> Dashboard BPN
                         </x-nav-link>
@@ -40,7 +40,7 @@
                         </x-nav-link>
                     @endif
 
-                    @if(Auth::check() && Auth::user()->role === 'mitra')
+                    @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'mitra']))
                         <x-nav-link :href="route('mitra.berkas.biasa')" :active="request()->routeIs('mitra.berkas.biasa')">
                             <i class="fa-solid fa-folder-open mr-2"></i> Berkas Fisik
                         </x-nav-link>
@@ -105,7 +105,7 @@
                 </x-responsive-nav-link>
             @endif
 
-            @if(Auth::check() && Auth::user()->role === 'bpn')
+            @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'bpn']))
                 <x-responsive-nav-link :href="route('bpn.dashboard')" :active="request()->routeIs('bpn.dashboard')">
                     Dashboard BPN
                 </x-responsive-nav-link>
@@ -123,7 +123,7 @@
                 </x-responsive-nav-link>
             @endif
 
-            @if(Auth::check() && Auth::user()->role === 'mitra')
+            @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'mitra']))
                 <x-responsive-nav-link :href="route('mitra.berkas.biasa')" :active="request()->routeIs('mitra.berkas.biasa')">
                     Berkas Fisik
                 </x-responsive-nav-link>
