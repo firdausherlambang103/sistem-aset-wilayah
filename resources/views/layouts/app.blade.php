@@ -29,7 +29,7 @@
             
             @include('layouts.navigation')
 
-            <div :class="desktopSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'" class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out md:ml-64 w-full">
+            <div :class="desktopSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'" class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out w-full">
                 
                 @if (isset($header))
                     <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-30 hidden md:block">
