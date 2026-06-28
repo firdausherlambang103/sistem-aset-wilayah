@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminSeeder::class,
+            WilayahNganjukSeeder::class,
             // Jika Anda sudah punya seeder wilayah, bisa ditambahkan di sini:
             // WilayahSeeder::class, 
         ]);

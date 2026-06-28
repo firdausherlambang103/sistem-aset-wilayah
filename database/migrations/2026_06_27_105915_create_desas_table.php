@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Migrasi Desa
         Schema::create('desas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('kecamatan_id')->constrained('kecamatans')->onDelete('cascade');
+            $table->string('nama_desa');
             $table->timestamps();
         });
     }
