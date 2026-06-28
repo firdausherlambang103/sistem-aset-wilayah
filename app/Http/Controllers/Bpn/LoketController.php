@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bpn;
 use App\Http\Controllers\Controller;
 use App\Models\Berkas;
 use App\Models\RiwayatBerkas;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
