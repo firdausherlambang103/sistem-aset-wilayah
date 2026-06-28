@@ -14,26 +14,37 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    </head>
-    <body class="font-sans antialiased text-slate-900 bg-slate-100">
         
-        <div class="min-h-screen bg-slate-100">
+        <style>
+            /* Custom Scrollbar untuk Sidebar agar lebih cantik */
+            .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+            .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+            .sidebar-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+            .sidebar-scroll:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+        </style>
+    </head>
+    <body class="font-sans antialiased text-slate-800 bg-slate-50/50" x-data="{ mobileSidebarOpen: false, desktopSidebarCollapsed: false }">
+        
+        <div class="min-h-screen flex overflow-hidden bg-slate-50/50">
             
             @include('layouts.navigation')
 
-            <div class="md:ml-64 flex flex-col min-h-screen transition-all duration-300">
+            <div :class="desktopSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'" class="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out md:ml-64 w-full">
                 
                 @if (isset($header))
-                    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30 hidden md:block">
-                        <div class="py-5 px-6">
+                    <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-30 hidden md:block">
+                        <div class="py-4 px-8 flex justify-between items-center">
                             <h2 class="font-black text-xl text-slate-800 leading-tight tracking-tight">
                                 {{ $header }}
                             </h2>
+                            <div class="text-sm font-semibold text-slate-500">
+                                <i class="fa-regular fa-calendar mr-1"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+                            </div>
                         </div>
                     </header>
                 @endif
 
-                <main class="flex-1">
+                <main class="flex-1 p-4 sm:p-6 lg:p-8 w-full overflow-x-hidden">
                     {{ $slot }}
                 </main>
 
