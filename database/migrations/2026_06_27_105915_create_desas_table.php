@@ -6,23 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // Migrasi Desa
         Schema::create('desas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kecamatan_id')->constrained('kecamatans')->onDelete('cascade');
-            $table->string('nama_desa');
+            $table->foreignId('kecamatan_id')->constrained('kecamatans')->onDelete('cascade'); // Relasi ke tabel kecamatans
+            $table->string('nama_desa'); // Kolom ini sekarang ditambahkan
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('desas');
