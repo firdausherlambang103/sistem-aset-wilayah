@@ -13,27 +13,31 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="font-sans antialiased text-slate-900 bg-slate-100">
+        
         <div class="min-h-screen bg-slate-100">
             
             @include('layouts.navigation')
 
-            @if (isset($header))
-                <header class="bg-white shadow-sm border-b border-slate-200">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        <h2 class="font-black text-xl text-slate-800 leading-tight tracking-tight">
-                            {{ $header }}
-                        </h2>
-                    </div>
-                </header>
-            @endif
+            <div class="md:ml-64 flex flex-col min-h-screen transition-all duration-300">
+                
+                @if (isset($header))
+                    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30 hidden md:block">
+                        <div class="py-5 px-6">
+                            <h2 class="font-black text-xl text-slate-800 leading-tight tracking-tight">
+                                {{ $header }}
+                            </h2>
+                        </div>
+                    </header>
+                @endif
 
-            <main>
-                {{ $slot }}
-            </main>
+                <main class="flex-1">
+                    {{ $slot }}
+                </main>
+
+            </div>
 
         </div>
     </body>
