@@ -15,6 +15,16 @@
                 <i class="fa-solid fa-circle-exclamation text-rose-500"></i> {{ session('error') }}
             </div>
         @endif
+        
+        @if ($errors->any())
+            <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl">
+                <ul class="list-disc list-inside text-sm font-medium">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-200">
             <div class="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center flex-wrap gap-4">
@@ -22,9 +32,9 @@
                     <i class="fa-solid fa-inbox text-blue-600"></i> Penerimaan Berkas Fisik
                 </h3>
                 
-                <a href="{{ route('bpn.loket.berkas.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                <button @click="openBuatBerkasModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
                     <i class="fa-solid fa-plus"></i> Buat Berkas Baru
-                </a>
+                </button>
             </div>
 
             <div class="flex border-b border-slate-200 px-6 pt-2 bg-slate-50 gap-6 overflow-x-auto custom-scrollbar">
@@ -98,11 +108,76 @@
 
         </div>
 
+        <div x-show="modalBuatBerkasOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <div @click.away="closeBuatBerkasModal()" x-transition.scale class="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col border border-slate-100 overflow-hidden relative">
+                
+                <div class="bg-blue-600 p-4 text-center relative">
+                    <h3 class="font-extrabold text-white">Input Berkas Baru</h3>
+                    <p class="text-[11px] text-blue-100">Entri data berkas fisik langsung dari loket</p>
+                    <button type="button" @click="closeBuatBerkasModal()" class="absolute top-4 right-5 text-blue-200 hover:text-white transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                
+                <form action="{{ route('bpn.loket.berkas.store') }}" method="POST">
+                    @csrf
+                    <div class="p-6 bg-slate-50 flex flex-col gap-4">
+                        
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR BERKAS <span class="text-rose-500">*</span></label>
+                            <input type="text" name="nomer_berkas" required autocomplete="off" 
+                                   class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold uppercase" 
+                                   placeholder="Misal: 10455/2026">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NAMA PEMOHON <span class="text-rose-500">*</span></label>
+                            <input type="text" name="nama_pemohon" required autocomplete="off" 
+                                   class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold" 
+                                   placeholder="Nama Lengkap Pemohon">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TIPE BERKAS <span class="text-rose-500">*</span></label>
+                                <select name="tipe_berkas" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold">
+                                    <option value="" disabled selected>Pilih Tipe...</option>
+                                    <option value="Rutin">Rutin</option>
+                                    <option value="PTSL / Proyek">PTSL / Proyek</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS PERMOHONAN <span class="text-rose-500">*</span></label>
+                                <select name="jenis_permohonan" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold">
+                                    <option value="" disabled selected>Pilih Jenis...</option>
+                                    <option value="Peralihan Hak (Jual Beli)">Peralihan Hak (Jual Beli)</option>
+                                    <option value="Pendaftaran SK">Pendaftaran SK</option>
+                                    <option value="Pemecahan / Penggabungan">Pemecahan / Penggabungan</option>
+                                    <option value="Roya / Hak Tanggungan">Roya / Hak Tanggungan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-t border-slate-100 bg-white flex gap-3">
+                        <button type="button" @click="closeBuatBerkasModal()" class="w-1/3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">Batal</button>
+                        <button type="submit" class="w-2/3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-md">
+                            <i class="fa-solid fa-save mr-1"></i> Simpan Berkas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div x-show="modalKoreksiOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
             <div @click.away="closeKoreksiModal()" x-transition.scale class="bg-white rounded-3xl w-full max-w-md shadow-2xl flex flex-col border border-slate-100 overflow-hidden">
-                <div class="bg-amber-500 p-4 text-center">
+                <div class="bg-amber-500 p-4 text-center relative">
                     <h3 class="font-extrabold text-white">Tindakan Koreksi Berkas</h3>
                     <p class="text-[11px] text-amber-100">No. <span x-text="selectedNo"></span> - <span x-text="selectedPemohon"></span></p>
+                    <button type="button" @click="closeKoreksiModal()" class="absolute top-4 right-5 text-amber-200 hover:text-white transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
                 </div>
                 
                 <form :action="'/bpn/loket-terima/koreksi/' + selectedId" method="POST">
@@ -135,6 +210,10 @@
                 scanner: null,
                 scanResult: '',
                 
+                // State Modal Buat Berkas
+                modalBuatBerkasOpen: false,
+
+                // State Modal Koreksi
                 modalKoreksiOpen: false,
                 selectedId: '',
                 selectedNo: '',
@@ -161,13 +240,21 @@
                     if (this.scanner) { this.scanner.clear(); }
                 },
 
+                // Functions untuk Modal Buat Berkas
+                openBuatBerkasModal() {
+                    this.modalBuatBerkasOpen = true;
+                },
+                closeBuatBerkasModal() {
+                    this.modalBuatBerkasOpen = false;
+                },
+
+                // Functions untuk Modal Koreksi
                 openKoreksiModal(id, no, pemohon) {
                     this.selectedId = id;
                     this.selectedNo = no;
                     this.selectedPemohon = pemohon;
                     this.modalKoreksiOpen = true;
                 },
-
                 closeKoreksiModal() {
                     this.modalKoreksiOpen = false;
                 }
