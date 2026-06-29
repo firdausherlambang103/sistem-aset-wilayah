@@ -47,7 +47,10 @@
     </style>
 </head>
 <body class="bg-slate-200 m-0 p-0 overflow-hidden">
-
+    <a href="{{ route('mitra.berkas.biasa') }}" 
+    class="absolute top-6 left-6 z-[30] bg-white/90 backdrop-blur-md shadow-lg border border-slate-200 text-slate-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 transition-all hover:scale-110 focus:outline-none">
+        <i class="fa-solid fa-arrow-left text-lg"></i>
+    </a>
     <div x-data="mapApp()" x-init="initMap()" class="relative w-full h-screen">
         
         <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
