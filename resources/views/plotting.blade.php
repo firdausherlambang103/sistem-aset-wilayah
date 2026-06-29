@@ -125,44 +125,55 @@
                     <form id="plotForm" @submit.prevent="submitForm" enctype="multipart/form-data">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
-                        <div x-show="step === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" class="space-y-4">
-                            
+                    <div x-show="step === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" class="space-y-4">
+                        
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NAMA PEMOHON <span class="text-rose-500">*</span></label>
-                                <input type="text" name="nama_pemohon" x-model="formData.nama_pemohon" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none" required>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR BERKAS <span class="text-rose-500">*</span></label>
+                                <input type="text" name="nomer_berkas" x-model="formData.nomer_berkas" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none uppercase font-bold" required>
                             </div>
-                            
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS PERMOHONAN <span class="text-rose-500">*</span></label>
-                                <input type="text" name="jenis_permohonan" x-model="formData.jenis_permohonan" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none" required>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TAHUN BERKAS <span class="text-rose-500">*</span></label>
+                                <input type="number" name="tahun_berkas" x-model="formData.tahun_berkas" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold" required>
                             </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS HAK <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="jenis_hak" x-model="formData.jenis_hak" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR HAK <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="nomer_hak" x-model="formData.nomer_hak" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-2">
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-600 mb-1.5">KECAMATAN <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="kecamatan" x-model="formData.kecamatan" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-600 mb-1.5">DESA <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="desa" x-model="formData.desa" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
-                                </div>
-                            </div>
-
-                            <button type="button" @click="nextStep(2)" class="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-2xl transition-colors flex justify-center items-center gap-3">
-                                <span>Selanjutnya: Visual Aset</span> <i class="fa-solid fa-arrow-right text-sm"></i>
-                            </button>
                         </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NAMA PEMOHON <span class="text-rose-500">*</span></label>
+                            <input type="text" name="nama_pemohon" x-model="formData.nama_pemohon" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS PERMOHONAN <span class="text-rose-500">*</span></label>
+                            <input type="text" name="jenis_permohonan" x-model="formData.jenis_permohonan" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none" required>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS HAK <span class="text-rose-500">*</span></label>
+                                <input type="text" name="jenis_hak" x-model="formData.jenis_hak" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR HAK <span class="text-rose-500">*</span></label>
+                                <input type="text" name="nomer_hak" x-model="formData.nomer_hak" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-2">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">KECAMATAN <span class="text-rose-500">*</span></label>
+                                <input type="text" name="kecamatan" x-model="formData.kecamatan" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">DESA <span class="text-rose-500">*</span></label>
+                                <input type="text" name="desa" x-model="formData.desa" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 outline-none" required>
+                            </div>
+                        </div>
+
+                        <button type="button" @click="nextStep(2)" class="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-2xl transition-colors flex justify-center items-center gap-3">
+                            <span>Selanjutnya: Visual Aset</span> <i class="fa-solid fa-arrow-right text-sm"></i>
+                        </button>
+                    </div>
 
                         <div x-show="step === 2" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" class="space-y-4">
                             <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3 mb-2">
@@ -244,12 +255,17 @@
                 imagePreview: null, gpsStatus: '', searchCoord: '', showSatellite: true,
                 isMenuOpen: window.innerWidth > 768, 
                 
-                formData: { nama_pemohon: '', jenis_permohonan: '', jenis_hak: '', nomer_hak: '', kecamatan: '', desa: '', geo_json_data: '' },
+                formData: { 
+                    nomer_berkas: '{{ strtoupper(\Illuminate\Support\Str::random(6)) }}', 
+                    tahun_berkas: '{{ date("Y") }}', 
+                    nama_pemohon: '', jenis_permohonan: '', jenis_hak: '', nomer_hak: '', kecamatan: '', desa: '', geo_json_data: '' 
+                },
 
                 validateStep1() { 
-                    return this.formData.nama_pemohon && this.formData.jenis_permohonan && 
-                           this.formData.jenis_hak && this.formData.nomer_hak && 
-                           this.formData.kecamatan && this.formData.desa; 
+                    return this.formData.nomer_berkas && this.formData.tahun_berkas && 
+                        this.formData.nama_pemohon && this.formData.jenis_permohonan && 
+                        this.formData.jenis_hak && this.formData.nomer_hak && 
+                        this.formData.kecamatan && this.formData.desa; 
                 },
 
                 initMap() {

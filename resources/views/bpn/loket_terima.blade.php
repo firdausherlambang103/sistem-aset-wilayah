@@ -127,8 +127,9 @@
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR BERKAS <span class="text-rose-500">*</span></label>
                                 <input type="text" name="nomer_berkas" required autocomplete="off" 
-                                       class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold uppercase" 
-                                       placeholder="Misal: 123456">
+                                    value="{{ strtoupper(\Illuminate\Support\Str::random(6)) }}"
+                                    class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold uppercase" 
+                                    placeholder="Misal: 123456">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TAHUN BERKAS <span class="text-rose-500">*</span></label>
