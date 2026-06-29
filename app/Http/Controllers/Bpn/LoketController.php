@@ -5,6 +5,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Berkas;
 use App\Models\RiwayatBerkas;
 use App\Models\User;
+use App\Models\Kecamatan;
+use App\Models\Desa;
+use App\Models\JenisHak;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -65,6 +68,51 @@ class LoketController extends Controller
 
         return view('bpn.loket_terima', compact('antrean'));
     }
+
+    // ========================================================================
+    // FITUR BARU: CREATE & STORE BERKAS
+    // ========================================================================
+
+    public function create()
+    {
+        // Mengambil data referensi untuk form pembuatan berkas
+        $kecamatans = Kecamatan::all();
+        $desas = Desa::all();
+        $jenis_haks = JenisHak::all();
+        
+        return view('bpn.create_berkas', compact('kecamatans', 'desas', 'jenis_haks'));
+    }
+
+    public function store(Request $request)
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'nomer_berkas' => 'required|unique:berkas,nomer_berkas',
+            'nama_pemohon' => 'required|string|max:255',
+            'tipe_berkas' => 'required|string',
+            'jenis_permohonan' => 'required|string',
+            // Tambahkan validasi lain sesuai dengan kebutuhan form Anda (misal kecamatan_id)
+        ]);
+
+        // Tetapkan status awal agar langsung masuk ke antrean loket
+        $validated['status_berkas'] = 'di_loket_terima';
+        
+        // Simpan berkas baru
+        $berkas = Berkas::create($validated);
+
+        // Catat ke Riwayat Berkas (Tracking)
+        RiwayatBerkas::create([
+            'berkas_id' => $berkas->id,
+            'ke_user_id' => auth()->id() ?? 1,
+            'aksi' => 'Dibuat Loket',
+            'catatan' => 'Berkas baru diinput langsung melalui Loket Penerimaan.'
+        ]);
+
+        // Arahkan kembali ke halaman index loket terima
+        return redirect()->route('bpn.loket.index')->with('success', 'Berkas baru ' . $berkas->nomer_berkas . ' berhasil ditambahkan!');
+    }
+
+    // ========================================================================
 
     public function terimaDariScan(Request $request)
     {
