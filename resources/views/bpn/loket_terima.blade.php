@@ -17,16 +17,14 @@
         @endif
 
         <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-200">
-            <!-- Di bagian atas tabel atau header daftar berkas -->
-            <div class="mb-4 flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-gray-800">Daftar Berkas Masuk</h2>
+            <div class="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center flex-wrap gap-4">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-inbox text-blue-600"></i> Penerimaan Berkas Fisik
+                </h3>
                 
-                <a href="{{ route('loket.berkas.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    + Buat Berkas Baru
+                <a href="{{ route('bpn.loket.berkas.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Buat Berkas Baru
                 </a>
-            </div>
-            <div class="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-inbox text-blue-600"></i> Penerimaan Berkas Fisik</h3>
             </div>
 
             <div class="flex border-b border-slate-200 px-6 pt-2 bg-slate-50 gap-6 overflow-x-auto custom-scrollbar">
