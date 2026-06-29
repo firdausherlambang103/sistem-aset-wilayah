@@ -121,13 +121,20 @@
                 
                 <form action="{{ route('bpn.loket.berkas.store') }}" method="POST">
                     @csrf
-                    <div class="p-6 bg-slate-50 flex flex-col gap-4">
+                    <div class="p-6 bg-slate-50 flex flex-col gap-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
                         
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR BERKAS <span class="text-rose-500">*</span></label>
-                            <input type="text" name="nomer_berkas" required autocomplete="off" 
-                                   class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold uppercase" 
-                                   placeholder="Misal: 10455/2026">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMOR BERKAS <span class="text-rose-500">*</span></label>
+                                <input type="text" name="nomer_berkas" required autocomplete="off" 
+                                       class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold uppercase" 
+                                       placeholder="Misal: 123456">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TAHUN BERKAS <span class="text-rose-500">*</span></label>
+                                <input type="number" name="tahun_berkas" required value="{{ date('Y') }}"
+                                       class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-bold">
+                            </div>
                         </div>
 
                         <div>
@@ -142,11 +149,10 @@
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TIPE BERKAS <span class="text-rose-500">*</span></label>
                                 <select name="tipe_berkas" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold">
                                     <option value="" disabled selected>Pilih Tipe...</option>
-                                    <option value="Rutin">Rutin</option>
-                                    <option value="PTSL / Proyek">PTSL / Proyek</option>
+                                    <option value="biasa">Biasa</option>
+                                    <option value="plotting">Plotting</option>
                                 </select>
                             </div>
-                            
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS PERMOHONAN <span class="text-rose-500">*</span></label>
                                 <select name="jenis_permohonan" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold">
@@ -158,6 +164,40 @@
                                 </select>
                             </div>
                         </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">JENIS HAK <span class="text-rose-500">*</span></label>
+                                <select name="jenis_hak" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold">
+                                    <option value="" disabled selected>Pilih Hak...</option>
+                                    <option value="Hak Milik">Hak Milik (HM)</option>
+                                    <option value="Hak Guna Bangunan">Hak Guna Bangunan (HGB)</option>
+                                    <option value="Hak Pakai">Hak Pakai (HP)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">NOMER HAK <span class="text-rose-500">*</span></label>
+                                <input type="text" name="nomer_hak" required autocomplete="off" 
+                                       class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold" 
+                                       placeholder="Misal: 01234">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">KECAMATAN <span class="text-rose-500">*</span></label>
+                                <input type="text" name="kecamatan" required autocomplete="off" 
+                                       class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold" 
+                                       placeholder="Nama Kecamatan">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1.5">DESA / KELURAHAN <span class="text-rose-500">*</span></label>
+                                <input type="text" name="desa" required autocomplete="off" 
+                                       class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 p-2.5 outline-none font-semibold" 
+                                       placeholder="Nama Desa">
+                            </div>
+                        </div>
+
                     </div>
                     
                     <div class="p-4 border-t border-slate-100 bg-white flex gap-3">

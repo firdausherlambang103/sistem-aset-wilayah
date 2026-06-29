@@ -85,22 +85,27 @@ class LoketController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
+        // Validasi disesuaikan dengan skema database
         $validated = $request->validate([
-            'nomer_berkas' => 'required|unique:berkas,nomer_berkas',
-            'nama_pemohon' => 'required|string|max:255',
-            'tipe_berkas' => 'required|string',
+            'nomer_berkas'     => 'required|unique:berkas,nomer_berkas',
+            'tahun_berkas'     => 'required|integer',
+            'nama_pemohon'     => 'required|string|max:255',
+            'tipe_berkas'      => 'required|in:biasa,plotting',
             'jenis_permohonan' => 'required|string',
-            // Tambahkan validasi lain sesuai dengan kebutuhan form Anda (misal kecamatan_id)
+            'jenis_hak'        => 'required|string',
+            'nomer_hak'        => 'required|string',
+            'kecamatan'        => 'required|string',
+            'desa'             => 'required|string',
         ]);
 
-        // Tetapkan status awal agar langsung masuk ke antrean loket
         $validated['status_berkas'] = 'di_loket_terima';
         
-        // Simpan berkas baru
+        // PENTING: Karena di database kolom 'mitra_id' sifatnya wajib (constrained),
+        // dan yang menginput ini adalah BPN (bukan mitra), maka kita simpan ID akun BPN sebagai penginput.
+        $validated['mitra_id'] = auth()->id(); 
+
         $berkas = Berkas::create($validated);
 
-        // Catat ke Riwayat Berkas (Tracking)
         RiwayatBerkas::create([
             'berkas_id' => $berkas->id,
             'ke_user_id' => auth()->id() ?? 1,
@@ -108,7 +113,6 @@ class LoketController extends Controller
             'catatan' => 'Berkas baru diinput langsung melalui Loket Penerimaan.'
         ]);
 
-        // Arahkan kembali ke halaman index loket terima
         return redirect()->route('bpn.loket.index')->with('success', 'Berkas baru ' . $berkas->nomer_berkas . ' berhasil ditambahkan!');
     }
 

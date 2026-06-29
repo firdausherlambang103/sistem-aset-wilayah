@@ -128,6 +128,20 @@
                     <form action="{{ route('berkas.biasa.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nomor Berkas</label>
+                                <input type="text" name="nomer_berkas" required 
+                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 uppercase" 
+                                    placeholder="Misal: 123456">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Tahun Berkas</label>
+                                <input type="number" name="tahun_berkas" required value="{{ date('Y') }}"
+                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            </div>
+                        </div>
+
                         <div class="bg-slate-50/50 p-5 md:p-6 rounded-2xl border border-slate-200 shadow-sm">
                             <h4 class="font-black text-xs text-slate-500 mb-5 uppercase tracking-widest flex items-center">
                                 <i class="fa-solid fa-user-pen mr-2"></i> Identitas Pemohon & Layanan
