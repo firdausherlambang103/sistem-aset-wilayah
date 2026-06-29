@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// Pastikan file app/Http/Controllers/ProfileController.php sudah Anda buat 
+// sesuai instruksi pada pesan sebelumnya agar tidak error "Target class does not exist".
 use App\Http\Controllers\ProfileController;
 
 // Controllers Mitra
@@ -58,7 +61,7 @@ Route::middleware(['auth'])->prefix('bpn')->name('bpn.')->group(function () {
     Route::get('/loket-terima', [LoketController::class, 'index'])->name('loket.index');
     
     // --- FITUR BARU: Pembuatan Berkas Baru oleh Loket ---
-    Route::get('/loket-terima/berkas/create', [LoketController::class, 'create'])->name('loket.berkas.create');
+    // Route GET (create) sudah tidak dipakai karena form muncul via Modal Popup
     Route::post('/loket-terima/berkas', [LoketController::class, 'store'])->name('loket.berkas.store');
     // ----------------------------------------------------
 
