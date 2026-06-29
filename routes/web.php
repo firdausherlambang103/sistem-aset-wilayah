@@ -56,6 +56,12 @@ Route::middleware(['auth'])->prefix('bpn')->name('bpn.')->group(function () {
 
     // Ruang Kerja Loket (Terima & Koreksi)
     Route::get('/loket-terima', [LoketController::class, 'index'])->name('loket.index');
+    
+    // --- FITUR BARU: Pembuatan Berkas Baru oleh Loket ---
+    Route::get('/loket-terima/berkas/create', [LoketController::class, 'create'])->name('loket.berkas.create');
+    Route::post('/loket-terima/berkas', [LoketController::class, 'store'])->name('loket.berkas.store');
+    // ----------------------------------------------------
+
     Route::post('/loket-terima/scan', [LoketController::class, 'terimaDariScan'])->name('loket.scan');
     Route::post('/loket-terima/koreksi/{id}', [LoketController::class, 'prosesKoreksi'])->name('loket.koreksi');
 
