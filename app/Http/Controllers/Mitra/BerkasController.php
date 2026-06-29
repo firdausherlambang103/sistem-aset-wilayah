@@ -21,29 +21,48 @@ class BerkasController extends Controller
                         ->orderBy('created_at', 'desc')
                         ->get();
                         
-        $kecamatans = Kecamatan::orderBy('nama_kecamatan')->get();
-        $desas = Desa::all(); // Dikirim semua untuk difilter oleh Alpine.js
-        $jenisHaks = JenisHak::orderBy('nama_hak')->get();
+        $kecamatans = Kecamatan::with('desa')->orderBy('nama_kecamatan')->get();
+        $jenisHaks = JenisHak::orderBy('id')->get();
+        
+        // Daftar Jenis Permohonan Standar BPN
+        $jenisPermohonans = [
+            'Pendaftaran Tanah Pertama Kali',
+            'Pemecahan Bidang Tanah',
+            'Penggabungan Bidang Tanah',
+            'Peralihan Hak (Balik Nama Jual Beli)',
+            'Peralihan Hak (Balik Nama Waris)',
+            'Pengecekan Sertipikat',
+            'Penurunan Hak',
+            'Peningkatan Hak (HGB ke HM)',
+            'Pembaruan Hak',
+            'Roya (Penghapusan Hak Tanggungan)'
+        ];
 
-        return view('mitra.ruang_kerja_biasa', compact('berkas', 'kecamatans', 'desas', 'jenisHaks'));
+        // Tambahkan variabel $jenisPermohonans ke dalam compact()
+        return view('mitra.ruang_kerja_biasa', compact('berkas', 'kecamatans', 'jenisHaks', 'jenisPermohonans'));
     }
 
     // 1. Simpan Berkas Biasa + Generate No Berkas Unik
     public function storeBerkasBiasa(Request $request)
     {
+        // Sesuaikan validasi dengan struktur form HTML yang baru (menggunakan ID)
         $request->validate([
             'nama_pemohon' => 'required|string',
             'jenis_permohonan' => 'required',
             'jenis_hak' => 'required',
             'nomer_hak' => 'required',
-            'kecamatan' => 'required',
-            'desa' => 'required',
+            'kecamatan_id' => 'required',
+            'desa_id' => 'required',
         ]);
 
         // Generate 6 digit alphanumeric acak & pastikan belum ada di DB
         do {
             $nomerUrutAcak = strtoupper(Str::random(6));
         } while (Berkas::where('nomer_berkas', $nomerUrutAcak)->exists());
+
+        // Ambil nama (string) Kecamatan dan Desa berdasarkan ID yang dipilih user
+        $kecamatan = Kecamatan::find($request->kecamatan_id);
+        $desa = Desa::find($request->desa_id);
 
         $berkas = Berkas::create([
             'nomer_berkas' => $nomerUrutAcak,
@@ -52,19 +71,16 @@ class BerkasController extends Controller
             'jenis_permohonan' => $request->jenis_permohonan,
             'jenis_hak' => $request->jenis_hak,
             'nomer_hak' => $request->nomer_hak,
-            'kecamatan' => $request->kecamatan,
-            'desa' => $request->desa,
+            'kecamatan' => $kecamatan ? $kecamatan->nama_kecamatan : '',
+            'desa' => $desa ? $desa->nama_desa : '',
             'tipe_berkas' => 'biasa',
             'status_berkas' => 'draft',
             'mitra_id' => auth()->id(),
         ]);
 
-        return response()->json([
-            'message' => 'Berkas berhasil dibuat',
-            'nomer_berkas' => $berkas->nomer_berkas,
-            // Frontend bisa menggunakan parameter ini untuk render QR Code dengan SimpleQRCode
-            'qr_content' => route('bpn.loket.terima', ['nomer_berkas' => $berkas->nomer_berkas]) 
-        ]);
+        // Karena form menggunakan mekanisme Submit tradisional, 
+        // kita alihkan (redirect) kembali ke halaman sebelumnya dengan membawa Alert Pesan Sukses
+        return redirect()->back()->with('success', 'Berkas Permohonan baru berhasil dibuat dengan Kode: ' . $berkas->nomer_berkas);
     }
 
     // 2. Simpan Berkas Plotting Spasial (PostGIS GeoJSON)
@@ -85,6 +101,10 @@ class BerkasController extends Controller
         $pathFoto = $request->file('foto_lokasi')->store('foto_lokasi_berkas', 'public');
 
         DB::transaction(function () use ($request, $nomerUrutAcak, $pathFoto) {
+            
+            // Catatan: Jika halaman Plotting nanti form kecamatannya juga menggunakan dropdown ID, 
+            // maka logika pencarian nama kecamatan/desa harus disamakan dengan fungsi storeBerkasBiasa di atas.
+            
             $berkas = Berkas::create([
                 'nomer_berkas' => $nomerUrutAcak,
                 'tahun_berkas' => now()->year,
@@ -111,6 +131,8 @@ class BerkasController extends Controller
             ]);
         });
 
+        // Halaman plotting biasanya di-submit melalui AJAX Fetch (Javascript bawaan peta Leaflet), 
+        // sehingga response json dipertahankan.
         return response()->json(['message' => 'Berkas Plotting Spasial berhasil disimpan.']);
     }
 }
