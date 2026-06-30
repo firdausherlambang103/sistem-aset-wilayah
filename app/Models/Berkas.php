@@ -9,7 +9,7 @@ class Berkas extends Model
 {
     use HasFactory;
 
-    // Menentukan nama tabel secara eksplisit (karena jamak dari berkas tetap berkas, bukan berkass)
+    // Menentukan nama tabel secara eksplisit
     protected $table = 'berkas';
 
     // Mengizinkan semua kolom diisi secara massal (Mass Assignment)
@@ -31,14 +31,47 @@ class Berkas extends Model
         return $this->hasOne(DataPlotting::class, 'berkas_id');
     }
 
-    // Di dalam class Berkas
+    /**
+     * Relasi ke Dokumen SPS
+     */
     public function sps()
     {
         return $this->hasOne(DokumenSps::class, 'berkas_id');
     }
 
+    /**
+     * Relasi ke Petugas Pelaksana
+     */
     public function petugas()
     {
         return $this->belongsTo(User::class, 'petugas_id');
+    }
+
+    // =================================================================
+    // TAMBAHAN RELASI BARU UNTUK RUANG KERJA
+    // =================================================================
+
+    /**
+     * Relasi ke Master Kecamatan
+     */
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
+    }
+
+    /**
+     * Relasi ke Master Desa
+     */
+    public function desa()
+    {
+        return $this->belongsTo(Desa::class, 'desa_id');
+    }
+
+    /**
+     * Relasi ke Master Jenis Hak
+     */
+    public function jenisHak()
+    {
+        return $this->belongsTo(JenisHak::class, 'jenis_hak_id');
     }
 }
