@@ -6,44 +6,49 @@ use App\Http\Controllers\Controller;
 use App\Models\Berkas;
 use App\Models\RiwayatBerkas;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class PelaksanaController extends Controller
 {
     public function index()
     {
-        $limitHarian = 15; // Kuota plotting harian yang Anda minta
-        
-        // Ambil berkas khusus plotting yang sudah sampai di tahap pelaksana
-        $antrean = Berkas::where('tipe_berkas', 'plotting')
-                         ->where('status_berkas', 'pelaksana_kegiatan')
-                         ->orderBy('updated_at', 'asc')
-                         ->take($limitHarian)
+        // 1. Ambil berkas yang berstatus pelaksana_kegiatan
+        // Anda bisa menambahkan ->where('petugas_id', auth()->id()) jika ingin 
+        // pelaksana HANYA melihat berkas yang ditugaskan spesifik ke akunnya.
+        $antrean = Berkas::where('status_berkas', 'pelaksana_kegiatan')
+                         ->with('petugas')
+                         ->orderBy('updated_at', 'desc')
                          ->get();
 
-        $jumlahSelesaiHariIni = Berkas::where('tipe_berkas', 'plotting')
-                                      ->where('status_berkas', 'selesai')
-                                      ->whereDate('updated_at', Carbon::today())
-                                      ->count();
+        // 2. Ambil berkas yang sudah diselesaikan (Untuk Tab Riwayat)
+        $selesai = Berkas::where('status_berkas', 'selesai')
+                         ->orderBy('updated_at', 'desc')
+                         ->limit(100) // Dibatasi agar tidak terlalu berat memuat halaman
+                         ->get();
 
-        return view('bpn.pelaksana', compact('antrean', 'limitHarian', 'jumlahSelesaiHariIni'));
+        return view('bpn.pelaksana', compact('antrean', 'selesai'));
     }
 
-    public function selesaikan($id)
+    public function selesaikan(Request $request, $id)
     {
+        $request->validate([
+            'catatan' => 'required|string'
+        ]);
+
         $berkas = Berkas::findOrFail($id);
 
+        // Update status menjadi selesai
         $berkas->update([
             'status_berkas' => 'selesai'
         ]);
 
+        // Catat di timeline riwayat
         RiwayatBerkas::create([
             'berkas_id' => $berkas->id,
-            'dari_user_id' => auth()->id(),
-            'aksi' => 'Plotting Diselesaikan',
-            'catatan' => 'Berkas spasial telah diproses dan dipublikasikan ke Peta Utama.'
+            'dari_user_id' => auth()->id() ?? 1,
+            'aksi' => 'Kegiatan Selesai (Pelaksana)',
+            'catatan' => $request->catatan
         ]);
 
-        return back()->with('success', 'Berkas plotting ' . $berkas->nomer_berkas . ' berhasil diselesaikan!');
+        return back()->with('success', 'Pekerjaan selesai! Berkas ' . $berkas->nomer_berkas . ' telah ditutup.');
     }
 }
