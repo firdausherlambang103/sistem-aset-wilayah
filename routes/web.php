@@ -49,6 +49,14 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// ========================================================
+// RUTE RUANG KERJA TERPUSAT (SATU PINTU UNTUK SEMUA ROLE)
+// ========================================================
+Route::middleware(['auth'])->group(function () {
+    Route::get('/ruang-kerja', [RuangKerjaController::class, 'index'])->name('ruang-kerja');
+});
+
+
 // --- RUTE ADMINISTRATOR ---
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -63,8 +71,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::middleware(['auth'])->prefix('bpn')->name('bpn.')->group(function () {
     // Dashboard BPN
     Route::get('/dashboard', [LoketController::class, 'dashboard'])->name('dashboard');
-    // Route Ruang Kerja Terpusat (Satu Pintu)
-    Route::get('/ruang-kerja', [RuangKerjaController::class, 'index'])->name('ruang-kerja');
+    
     // Loket Terima & Koreksi
     Route::get('/loket-terima', [LoketController::class, 'index'])->name('loket.index');
     Route::post('/loket-terima/berkas', [LoketController::class, 'store'])->name('loket.berkas.store');
