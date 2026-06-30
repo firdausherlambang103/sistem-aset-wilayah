@@ -61,12 +61,14 @@ class LoketController extends Controller
 
     public function index()
     {
-        // Mengambil antrean berkas yang saat ini berada di Loket Terima / Koreksi
         $antrean = Berkas::whereIn('status_berkas', ['di_loket_terima', 'di_loket_koreksi'])
                          ->orderBy('updated_at', 'desc')
                          ->get();
 
-        return view('bpn.loket_terima', compact('antrean'));
+        // Ambil daftar nama petugas (BPN) untuk dimunculkan di Dropdown
+        $daftarPetugas = User::whereIn('role', ['bpn', 'admin'])->get();
+
+        return view('bpn.loket_terima', compact('antrean', 'daftarPetugas'));
     }
 
     // ========================================================================
@@ -171,15 +173,28 @@ class LoketController extends Controller
 
     public function indexPembayaran()
     {
-        // Cari yang statusnya sesuai dengan yang diset di BackofficeController
-        $berkasSPS = Berkas::where('status_berkas', 'pembayaran_validasi')->get();
-        return view('bpn.loket_pembayaran', compact('berkasSPS'));
+        // 1. Antrean Menunggu Validasi Pembayaran (Variabel $antrean)
+        $antrean = Berkas::where('status_berkas', 'pembayaran_validasi')
+                         ->with('sps')
+                         ->orderBy('updated_at', 'desc')
+                         ->get();
+
+        // 2. Berkas yang sudah dibayar (Variabel $kwitansi)
+        $kwitansi = Berkas::whereHas('sps', function ($query) {
+            $query->where('is_payment_validated', true);
+        })
+        ->with('sps')
+        ->orderBy('updated_at', 'desc')
+        ->get();
+
+        // Mengirimkan kedua variabel ke view
+        return view('bpn.loket_pembayaran', compact('antrean', 'kwitansi'));
     }
 
     public function prosesPembayaran(Request $request, $id)
     {
         $request->validate([
-            'penerima_kwitansi' => 'required|string',
+            'penerima_kwitansi' => 'required|string|max:255',
         ]);
 
         $berkas = Berkas::findOrFail($id);
@@ -193,9 +208,52 @@ class LoketController extends Controller
             ]);
         }
 
-        // Update status ke tahap berikutnya
+        // Update Status Berkas ke Pelaksana Kegiatan
         $berkas->update(['status_berkas' => 'pelaksana_kegiatan']);
 
-        return back()->with('success', 'Pembayaran divalidasi. Berkas diteruskan ke Pelaksana.');
+        // Catat riwayat serah terima kwitansi
+        RiwayatBerkas::create([
+            'berkas_id' => $berkas->id,
+            'dari_user_id' => auth()->id() ?? 1,
+            'aksi' => 'Pembayaran Divalidasi',
+            'catatan' => 'SPS telah dibayar lunas. Bukti Kwitansi fisik diserahkan kepada: ' . strtoupper($request->penerima_kwitansi)
+        ]);
+
+        return back()->with('success', 'Pembayaran divalidasi dan Kwitansi diserahkan kepada ' . $request->penerima_kwitansi . '. Berkas diteruskan ke Pelaksana Kegiatan.');
+    }
+    
+    public function kirimBatch(Request $request)
+    {
+        $request->validate([
+            'berkas_ids' => 'required|string',
+            'tujuan_loket' => 'required|string',
+            'petugas_id' => 'required|exists:users,id'
+        ]);
+
+        $ids = json_decode($request->berkas_ids, true);
+        if (empty($ids)) return back()->with('error', 'Pilih minimal satu berkas untuk dikirim.');
+
+        $petugas = User::find($request->petugas_id);
+
+        foreach ($ids as $id) {
+            $berkas = Berkas::find($id);
+            if ($berkas) {
+                // Update status dan pindahkan kepemilikan berkas ke petugas yg ditunjuk
+                $berkas->update([
+                    'status_berkas' => $request->tujuan_loket,
+                    'petugas_id' => $petugas->id
+                ]);
+
+                RiwayatBerkas::create([
+                    'berkas_id' => $berkas->id,
+                    'dari_user_id' => auth()->id() ?? 1,
+                    'ke_user_id' => $petugas->id,
+                    'aksi' => 'Disposisi Berkas',
+                    'catatan' => 'Berkas diteruskan ke ' . strtoupper($petugas->name ?? $petugas->email) . ' pada bagian ' . str_replace('_', ' ', $request->tujuan_loket)
+                ]);
+            }
+        }
+
+        return back()->with('success', count($ids) . ' Berkas berhasil dikirim ke ' . ($petugas->name ?? $petugas->email) . '!');
     }
 }

@@ -36,4 +36,9 @@ class Berkas extends Model
     {
         return $this->hasOne(DokumenSps::class, 'berkas_id');
     }
+
+    public function petugas()
+    {
+        return $this->belongsTo(User::class, 'petugas_id');
+    }
 }

@@ -77,7 +77,8 @@ Route::middleware(['auth'])->prefix('bpn')->name('bpn.')->group(function () {
     Route::post('/backoffice/tolak/{id}', [BackofficeController::class, 'tolak'])->name('backoffice.tolak');
     Route::put('/backoffice/update/{id}', [BackofficeController::class, 'update'])->name('backoffice.update');
     // ------------------------------
-
+    // Rute untuk Disposisi/Kirim Massal Berkas
+    Route::post('/berkas/kirim-batch', [LoketController::class, 'kirimBatch'])->name('berkas.kirim');
     // Loket Pembayaran & Validasi SPS
     Route::get('/loket-pembayaran', [LoketController::class, 'indexPembayaran'])->name('pembayaran.index');
     Route::post('/loket-pembayaran/proses/{id}', [LoketController::class, 'prosesPembayaran'])->name('pembayaran.proses');

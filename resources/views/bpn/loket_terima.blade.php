@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-200">
+        <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-200 relative">
             <div class="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center flex-wrap gap-4">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-inbox text-blue-600"></i> Penerimaan Berkas Fisik
@@ -46,10 +46,14 @@
                 </button>
             </div>
             
-            <div x-show="activeTab === 'antrean'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="overflow-x-auto custom-scrollbar">
+            <div x-show="activeTab === 'antrean'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="overflow-x-auto custom-scrollbar pb-24">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50/50">
                         <tr>
+                            <th class="px-5 py-4 w-12 text-center">
+                                <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                                       @click="selectedBerkas = $event.target.checked ? {{ json_encode($antrean->pluck('id')->map(fn($id) => (string)$id)) }} : []">
+                            </th>
                             <th class="px-5 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">No. Berkas</th>
                             <th class="px-5 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Pemohon / Layanan</th>
                             <th class="px-5 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Status Loket</th>
@@ -58,10 +62,13 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-100">
                         @forelse($antrean as $item)
-                            <tr class="hover:bg-slate-50 transition">
+                            <tr class="hover:bg-blue-50/30 transition" :class="selectedBerkas.includes('{{ $item->id }}') ? 'bg-blue-50/70' : ''">
+                                <td class="px-5 py-4 text-center">
+                                    <input type="checkbox" value="{{ $item->id }}" x-model="selectedBerkas" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                </td>
                                 <td class="px-5 py-4">
                                     <div class="text-lg font-black text-blue-700 tracking-widest">{{ $item->nomer_berkas }}</div>
-                                    <div class="text-[10px] text-slate-500 mt-1 font-semibold uppercase">{{ $item->tipe_berkas }}</div>
+                                    <div class="text-[10px] text-slate-500 mt-1 font-semibold uppercase">{{ $item->tipe_berkas }} - THN {{ $item->tahun_berkas }}</div>
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="text-sm font-bold text-slate-800">{{ $item->nama_pemohon }}</div>
@@ -72,12 +79,12 @@
                                 </td>
                                 <td class="px-5 py-4 text-right whitespace-nowrap">
                                     <button @click="openKoreksiModal({{ $item->id }}, '{{ $item->nomer_berkas }}', '{{ $item->nama_pemohon }}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors text-xs font-bold shadow-sm">
-                                        <i class="fa-solid fa-pen-to-square"></i> Proses / Koreksi
+                                        <i class="fa-solid fa-pen-to-square"></i> Cek Koreksi
                                     </button>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="px-6 py-12 text-center text-slate-500 italic font-medium">Antrean loket kosong.</td></tr>
+                            <tr><td colspan="5" class="px-6 py-12 text-center text-slate-500 italic font-medium">Antrean loket kosong.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -108,6 +115,37 @@
 
         </div>
 
+        <div x-show="selectedBerkas.length > 0" x-transition.opacity class="fixed bottom-0 left-0 right-0 z-50 p-4 lg:pl-72 pointer-events-none flex justify-center pb-6" x-cloak>
+            <div class="bg-slate-800 rounded-2xl shadow-2xl shadow-slate-900/50 p-4 flex items-center gap-4 pointer-events-auto border border-slate-700 w-full max-w-4xl flex-wrap md:flex-nowrap">
+                
+                <div class="text-white font-bold text-sm bg-slate-700 px-4 py-2.5 rounded-xl shrink-0 border border-slate-600 flex items-center gap-2">
+                    <span class="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs" x-text="selectedBerkas.length"></span> Dipilih
+                </div>
+                
+                <form action="{{ route('bpn.berkas.kirim') }}" method="POST" class="flex items-center gap-3 w-full flex-wrap sm:flex-nowrap">
+                    @csrf
+                    <input type="hidden" name="berkas_ids" :value="JSON.stringify(selectedBerkas)">
+                    
+                    <select name="tujuan_loket" required class="bg-slate-700 border-slate-600 text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-2.5 w-full font-semibold outline-none cursor-pointer">
+                        <option value="" disabled selected>-- Teruskan Ke Bagian --</option>
+                        <option value="backoffice_sps">Backoffice (Pembuatan SPS)</option>
+                        <option value="pembayaran_validasi">Loket Pembayaran</option>
+                        <option value="pelaksana_kegiatan">Pelaksana Kegiatan (Plotting/Ukur)</option>
+                    </select>
+
+                    <select name="petugas_id" required class="bg-slate-700 border-slate-600 text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-2.5 w-full font-semibold outline-none cursor-pointer">
+                        <option value="" disabled selected>-- Tugaskan Ke User --</option>
+                        @foreach($daftarPetugas ?? [] as $ptg)
+                            <option value="{{ $ptg->id }}">{{ $ptg->name ?? $ptg->email }} ({{ strtoupper($ptg->role) }})</option>
+                        @endforeach
+                    </select>
+
+                    <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-lg shrink-0 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim
+                    </button>
+                </form>
+            </div>
+        </div>
         <div x-show="modalBuatBerkasOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
             <div @click.away="closeBuatBerkasModal()" x-transition.scale class="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col border border-slate-100 overflow-hidden relative">
                 
@@ -212,7 +250,7 @@
         </div>
 
         <div x-show="modalKoreksiOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div @click.away="closeKoreksiModal()" x-transition.scale class="bg-white rounded-3xl w-full max-w-md shadow-2xl flex flex-col border border-slate-100 overflow-hidden">
+            <div @click.away="closeKoreksiModal()" x-transition.scale class="bg-white rounded-3xl w-full max-w-md shadow-2xl flex flex-col border border-slate-100 overflow-hidden relative">
                 <div class="bg-amber-500 p-4 text-center relative">
                     <h3 class="font-extrabold text-white">Tindakan Koreksi Berkas</h3>
                     <p class="text-[11px] text-amber-100">No. <span x-text="selectedNo"></span> - <span x-text="selectedPemohon"></span></p>
@@ -225,12 +263,12 @@
                     @csrf
                     <div class="p-6 bg-slate-50">
                         <label class="block text-[11px] font-bold text-slate-600 mb-1.5">CATATAN LOKET <span class="text-rose-500">*</span></label>
-                        <textarea name="catatan" rows="3" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 p-2.5 outline-none mb-4" placeholder="Misal: Fotokopi KTP kurang jelas, harap lampirkan ulang..."></textarea>
+                        <textarea name="catatan" rows="3" required class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 p-2.5 outline-none mb-4" placeholder="Misal: Berkas lengkap. Siap dikirim..."></textarea>
                         
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TINDAKAN SELANJUTNYA <span class="text-rose-500">*</span></label>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1.5">TINDAKAN KOREKSI <span class="text-rose-500">*</span></label>
                         <select name="aksi" class="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 p-2.5 outline-none font-bold">
-                            <option value="teruskan_backoffice">Sudah Benar - Teruskan ke Backoffice (SPS)</option>
-                            <option value="kembalikan">Salah/Kurang - Kembalikan ke Mitra</option>
+                            <option value="siap_kirim">Koreksi Selesai (Simpan Catatan & Siap Dikirim)</option>
+                            <option value="kembalikan">Salah/Kurang - Tolak & Kembalikan ke Mitra</option>
                         </select>
                     </div>
                     
@@ -248,13 +286,12 @@
         function loketApp() {
             return {
                 activeTab: 'antrean',
+                selectedBerkas: [], // Data Array untuk checkbox massal
+                
                 scanner: null,
                 scanResult: '',
                 
-                // State Modal Buat Berkas
                 modalBuatBerkasOpen: false,
-
-                // State Modal Koreksi
                 modalKoreksiOpen: false,
                 selectedId: '',
                 selectedNo: '',
@@ -281,24 +318,16 @@
                     if (this.scanner) { this.scanner.clear(); }
                 },
 
-                // Functions untuk Modal Buat Berkas
-                openBuatBerkasModal() {
-                    this.modalBuatBerkasOpen = true;
-                },
-                closeBuatBerkasModal() {
-                    this.modalBuatBerkasOpen = false;
-                },
+                openBuatBerkasModal() { this.modalBuatBerkasOpen = true; },
+                closeBuatBerkasModal() { this.modalBuatBerkasOpen = false; },
 
-                // Functions untuk Modal Koreksi
                 openKoreksiModal(id, no, pemohon) {
                     this.selectedId = id;
                     this.selectedNo = no;
                     this.selectedPemohon = pemohon;
                     this.modalKoreksiOpen = true;
                 },
-                closeKoreksiModal() {
-                    this.modalKoreksiOpen = false;
-                }
+                closeKoreksiModal() { this.modalKoreksiOpen = false; }
             }
         }
     </script>
