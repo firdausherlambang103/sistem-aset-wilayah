@@ -46,9 +46,29 @@
             };
         @endphp
 
-        @if(Auth::check() && Auth::user()->role === 'admin')
-            <div x-show="!desktopSidebarCollapsed" class="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 mb-2 whitespace-nowrap">Administrator</div>
-            <div x-show="desktopSidebarCollapsed" class="h-4 mt-1 mb-2 border-b border-slate-200 mx-2" x-cloak></div>
+        <div x-show="!desktopSidebarCollapsed" class="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 mb-2 whitespace-nowrap">Menu Utama</div>
+        <div x-show="desktopSidebarCollapsed" class="h-4 mt-1 mb-2 border-b border-slate-200 mx-2" x-cloak></div>
+
+        <a href="{{ route('ruang-kerja') }}" class="{{ $linkClass(request()->routeIs('ruang-kerja')) }}">
+            <div class="w-8 shrink-0 flex justify-center items-center">
+                <i class="fa-solid fa-briefcase text-lg transition-colors group-hover:text-blue-600"></i>
+            </div>
+            <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Ruang Kerja</span>
+            <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Ruang Kerja</div>
+        </a>
+
+        <a href="{{ url('/map') }}" class="{{ $linkClass(request()->is('map') || request()->routeIs('bpn.peta')) }}">
+            <div class="w-8 shrink-0 flex justify-center items-center">
+                <i class="fa-solid fa-map text-lg transition-colors group-hover:text-blue-600"></i>
+            </div>
+            <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Peta Aset Wilayah</span>
+            <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Peta Aset Wilayah</div>
+        </a>
+
+
+        @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->jabatan === 'admin'))
+            <div x-show="!desktopSidebarCollapsed" class="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4 mb-2 whitespace-nowrap">Administrator</div>
+            <div x-show="desktopSidebarCollapsed" class="h-4 mt-4 mb-2 border-b border-slate-200 mx-2" x-cloak></div>
             
             <a href="{{ route('admin.users.index') }}" class="{{ $linkClass(request()->routeIs('admin.users.*')) }}">
                 <div class="w-8 shrink-0 flex justify-center items-center">
@@ -67,78 +87,6 @@
             </a>
         @endif
 
-        @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'bpn']))
-            <div x-show="!desktopSidebarCollapsed" class="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4 mb-2 whitespace-nowrap">Layanan BPN</div>
-            <div x-show="desktopSidebarCollapsed" class="h-4 mt-4 mb-2 border-b border-slate-200 mx-2" x-cloak></div>
-
-            <a href="{{ route('bpn.dashboard') }}" class="{{ $linkClass(request()->routeIs('bpn.dashboard')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-gauge-high text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Dashboard BPN</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Dashboard BPN</div>
-            </a>
-            
-            <a href="{{ route('bpn.loket.index') }}" class="{{ $linkClass(request()->routeIs('bpn.loket.*')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-inbox text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Loket Penerimaan</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Loket Penerimaan</div>
-            </a>
-
-            <a href="{{ route('bpn.backoffice.index') }}" class="{{ $linkClass(request()->routeIs('bpn.backoffice.*')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-file-invoice-dollar text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Backoffice (SPS)</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Backoffice (SPS)</div>
-            </a>
-            <a href="{{ route('bpn.pembayaran.index') }}" class="{{ $linkClass(request()->routeIs('bpn.pembayaran.*')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-wallet text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Loket Pembayaran</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Loket Pembayaran</div>
-            </a>
-
-            <a href="{{ route('bpn.pelaksana.index') }}" class="{{ $linkClass(request()->routeIs('bpn.pelaksana.*')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-layer-group text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Pelaksana Kegiatan</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Pelaksana Kegiatan</div>
-            </a>
-
-            <a href="{{ route('bpn.peta') }}" class="{{ $linkClass(request()->routeIs('bpn.peta')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-map text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Peta Utama Nganjuk</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Peta Utama Nganjuk</div>
-            </a>
-        @endif
-
-        @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'mitra']))
-            <div x-show="!desktopSidebarCollapsed" class="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4 mb-2 whitespace-nowrap">Ruang Kerja Mitra</div>
-            <div x-show="desktopSidebarCollapsed" class="h-4 mt-4 mb-2 border-b border-slate-200 mx-2" x-cloak></div>
-
-            <a href="{{ route('mitra.berkas.biasa') }}" class="{{ $linkClass(request()->routeIs('mitra.berkas.biasa')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-folder-open text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Berkas Fisik</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Berkas Fisik</div>
-            </a>
-
-            <a href="{{ route('mitra.plotting') }}" class="{{ $linkClass(request()->routeIs('mitra.plotting')) }}">
-                <div class="w-8 shrink-0 flex justify-center items-center">
-                    <i class="fa-solid fa-map-pin text-lg transition-colors group-hover:text-blue-600"></i>
-                </div>
-                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Plotting Spasial</span>
-                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Plotting Spasial</div>
-            </a>
-        @endif
     </div>
 
     <div class="shrink-0 border-t border-slate-200 p-3 bg-white overflow-hidden">
@@ -152,7 +100,7 @@
                     {{ Auth::user()->email ?? 'Pengguna' }}
                 </div>
                 <div class="text-[10px] font-black text-blue-600 uppercase tracking-widest">
-                    {{ Auth::user()->role ?? '' }}
+                    {{ Auth::user()->role ?? Auth::user()->jabatan ?? 'User' }}
                 </div>
             </div>
         </div>

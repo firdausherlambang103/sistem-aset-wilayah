@@ -1,11 +1,19 @@
-@php
-    $isResponsive = $responsive ?? false;
-    $component = $isResponsive ? 'responsive-nav-link' : 'nav-link';
-@endphp
+<div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+    <x-nav-link :href="route('ruang-kerja')" :active="request()->routeIs('ruang-kerja')">
+        {{ __('Ruang Kerja') }}
+    </x-nav-link>
 
-@if(Auth::check() && Auth::user()->role === 'admin')
-    <x-{{$component}} :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">User & Approval</x-{{$component}}>
-    <x-{{$component}} :href="route('admin.wilayah.index')" :active="request()->routeIs('admin.wilayah.*')">Master Wilayah</x-{{$component}}>
-@endif
+    @if(auth()->user()->jabatan === 'admin')
+        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+            {{ __('Manajemen User') }}
+        </x-nav-link>
+        
+        <x-nav-link :href="route('admin.wilayah.index')" :active="request()->routeIs('admin.wilayah.*')">
+            {{ __('Data Wilayah') }}
+        </x-nav-link>
+    @endif
 
-{{-- Tambahkan menu lainnya dengan pola yang sama ... --}}
+    <x-nav-link :href="url('/map')" :active="request()->is('map')">
+        {{ __('Peta Aset') }}
+    </x-nav-link>
+</div>
