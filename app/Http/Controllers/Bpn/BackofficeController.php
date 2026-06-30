@@ -13,12 +13,11 @@ class BackofficeController extends Controller
 {
     public function index()
     {
-        // Ambil antrean berkas yang diteruskan ke Backoffice (SPS)
-        $berkas = Berkas::where('status_berkas', 'backoffice_sps')
-                        ->orderBy('updated_at', 'desc')
-                        ->get();
+        $berkas = \App\Models\Berkas::where('status_berkas', 'backoffice_sps')->orderBy('updated_at', 'desc')->get();
+        // Ambil daftar petugas
+        $daftarPetugas = \App\Models\User::whereIn('role', ['bpn', 'admin'])->get();
                         
-        return view('bpn.backoffice', compact('berkas'));
+        return view('bpn.backoffice', compact('berkas', 'daftarPetugas'));
     }
 
     // 1. FUNGSI TERBITKAN SPS (SIMPAN KE TABEL dokumen_sps)

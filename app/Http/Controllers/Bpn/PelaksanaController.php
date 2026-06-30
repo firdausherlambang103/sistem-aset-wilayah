@@ -11,21 +11,35 @@ class PelaksanaController extends Controller
 {
     public function index()
     {
-        // 1. Ambil berkas yang berstatus pelaksana_kegiatan
-        // Anda bisa menambahkan ->where('petugas_id', auth()->id()) jika ingin 
-        // pelaksana HANYA melihat berkas yang ditugaskan spesifik ke akunnya.
-        $antrean = Berkas::where('status_berkas', 'pelaksana_kegiatan')
-                         ->with('petugas')
-                         ->orderBy('updated_at', 'desc')
-                         ->get();
+        $antreanBiasa = \App\Models\Berkas::where('status_berkas', 'pelaksana_kegiatan')->where('tipe_berkas', 'biasa')->with('petugas')->orderBy('updated_at', 'desc')->get();
+        $antreanPlotting = \App\Models\Berkas::where('status_berkas', 'pelaksana_kegiatan')->where('tipe_berkas', 'plotting')->with('petugas')->orderBy('updated_at', 'desc')->get();
+        $selesai = \App\Models\Berkas::where('status_berkas', 'selesai')->orderBy('updated_at', 'desc')->limit(100)->get();
+        
+        $daftarPetugas = \App\Models\User::whereIn('role', ['bpn', 'admin'])->get();
 
-        // 2. Ambil berkas yang sudah diselesaikan (Untuk Tab Riwayat)
-        $selesai = Berkas::where('status_berkas', 'selesai')
-                         ->orderBy('updated_at', 'desc')
-                         ->limit(100) // Dibatasi agar tidak terlalu berat memuat halaman
-                         ->get();
+        return view('bpn.pelaksana', compact('antreanBiasa', 'antreanPlotting', 'selesai', 'daftarPetugas'));
+    }
 
-        return view('bpn.pelaksana', compact('antrean', 'selesai'));
+    public function updateProgress(Request $request, $id)
+    {
+        // Validasi kini mengharapkan array (karena dari checkbox)
+        $request->validate([
+            'kegiatan' => 'required|array',
+            'catatan' => 'nullable|string'
+        ]);
+
+        $berkas = \App\Models\Berkas::findOrFail($id);
+        // Gabungkan array checkbox menjadi string (Contoh: "Pengukuran, Pemeriksaan Tanah")
+        $kegiatan = implode(', ', $request->kegiatan);
+
+        \App\Models\RiwayatBerkas::create([
+            'berkas_id' => $berkas->id,
+            'dari_user_id' => auth()->id() ?? 1,
+            'aksi' => 'Progress: ' . $kegiatan,
+            'catatan' => $request->catatan ?? 'Menyelesaikan tahapan tugas yang dipilih.'
+        ]);
+
+        return back()->with('success', 'Progress kegiatan berhasil diperbarui.');
     }
 
     public function selesaikan(Request $request, $id)
@@ -37,15 +51,13 @@ class PelaksanaController extends Controller
         $berkas = Berkas::findOrFail($id);
 
         // Update status menjadi selesai
-        $berkas->update([
-            'status_berkas' => 'selesai'
-        ]);
+        $berkas->update(['status_berkas' => 'selesai']);
 
         // Catat di timeline riwayat
         RiwayatBerkas::create([
             'berkas_id' => $berkas->id,
             'dari_user_id' => auth()->id() ?? 1,
-            'aksi' => 'Kegiatan Selesai (Pelaksana)',
+            'aksi' => 'Kegiatan Selesai (Finalisasi Pelaksana)',
             'catatan' => $request->catatan
         ]);
 

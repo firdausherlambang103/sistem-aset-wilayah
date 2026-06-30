@@ -83,8 +83,10 @@ Route::middleware(['auth'])->prefix('bpn')->name('bpn.')->group(function () {
     Route::get('/loket-pembayaran', [LoketController::class, 'indexPembayaran'])->name('pembayaran.index');
     Route::post('/loket-pembayaran/proses/{id}', [LoketController::class, 'prosesPembayaran'])->name('pembayaran.proses');
 
-    // Pelaksana Kegiatan (Plotting)
+
+    // Pelaksana Kegiatan
     Route::get('/pelaksana', [PelaksanaController::class, 'index'])->name('pelaksana.index');
+    Route::post('/pelaksana/progress/{id}', [PelaksanaController::class, 'updateProgress'])->name('pelaksana.progress'); // <-- RUTE BARU
     Route::post('/pelaksana/selesai/{id}', [PelaksanaController::class, 'selesaikan'])->name('pelaksana.selesaikan');
 
     // Peta Utama / WebGIS Nganjuk

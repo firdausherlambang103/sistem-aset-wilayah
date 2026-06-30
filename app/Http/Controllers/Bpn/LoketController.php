@@ -173,24 +173,16 @@ class LoketController extends Controller
 
     public function indexPembayaran()
     {
-        // 1. Antrean Menunggu Validasi Pembayaran (Variabel $antrean)
-        $antrean = Berkas::where('status_berkas', 'pembayaran_validasi')
-                         ->with('sps')
-                         ->orderBy('updated_at', 'desc')
-                         ->get();
-
-        // 2. Berkas yang sudah dibayar (Variabel $kwitansi)
-        $kwitansi = Berkas::whereHas('sps', function ($query) {
+        $antrean = \App\Models\Berkas::where('status_berkas', 'pembayaran_validasi')->with('sps')->orderBy('updated_at', 'desc')->get();
+        $kwitansi = \App\Models\Berkas::whereHas('sps', function ($query) {
             $query->where('is_payment_validated', true);
-        })
-        ->with('sps')
-        ->orderBy('updated_at', 'desc')
-        ->get();
+        })->with('sps')->orderBy('updated_at', 'desc')->get();
+        
+        $daftarPetugas = \App\Models\User::whereIn('role', ['bpn', 'admin'])->get();
 
-        // Mengirimkan kedua variabel ke view
-        return view('bpn.loket_pembayaran', compact('antrean', 'kwitansi'));
+        return view('bpn.loket_pembayaran', compact('antrean', 'kwitansi', 'daftarPetugas'));
     }
-
+    
     public function prosesPembayaran(Request $request, $id)
     {
         $request->validate([
