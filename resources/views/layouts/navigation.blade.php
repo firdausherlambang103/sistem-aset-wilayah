@@ -87,9 +87,16 @@
                 <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Loket Penerimaan</div>
             </a>
 
-            <a href="{{ route('bpn.pembayaran.index') }}" class="{{ $linkClass(request()->routeIs('bpn.pembayaran.*')) }}">
+            <a href="{{ route('bpn.backoffice.index') }}" class="{{ $linkClass(request()->routeIs('bpn.backoffice.*')) }}">
                 <div class="w-8 shrink-0 flex justify-center items-center">
                     <i class="fa-solid fa-file-invoice-dollar text-lg transition-colors group-hover:text-blue-600"></i>
+                </div>
+                <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Backoffice (SPS)</span>
+                <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Backoffice (SPS)</div>
+            </a>
+            <a href="{{ route('bpn.pembayaran.index') }}" class="{{ $linkClass(request()->routeIs('bpn.pembayaran.*')) }}">
+                <div class="w-8 shrink-0 flex justify-center items-center">
+                    <i class="fa-solid fa-wallet text-lg transition-colors group-hover:text-blue-600"></i>
                 </div>
                 <span x-show="!desktopSidebarCollapsed" class="ml-2 whitespace-nowrap">Loket Pembayaran</span>
                 <div x-show="desktopSidebarCollapsed" class="absolute left-14 bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl" x-cloak>Loket Pembayaran</div>

@@ -171,8 +171,8 @@ class LoketController extends Controller
 
     public function indexPembayaran()
     {
-        // Mengambil berkas yang statusnya sudah diupload SPS
-        $berkasSPS = Berkas::where('status_berkas', 'backoffice_sps')->get();
+        // Cari yang statusnya sesuai dengan yang diset di BackofficeController
+        $berkasSPS = Berkas::where('status_berkas', 'pembayaran_validasi')->get();
         return view('bpn.loket_pembayaran', compact('berkasSPS'));
     }
 
@@ -184,14 +184,16 @@ class LoketController extends Controller
 
         $berkas = Berkas::findOrFail($id);
         
-        // Update Dokumen SPS
-        $berkas->sps()->update([
-            'is_payment_validated' => true,
-            'tanggal_bayar' => now(),
-            'penerima_kwitansi' => $request->penerima_kwitansi
-        ]);
+        // Pastikan relasi sps sudah ada di database
+        if ($berkas->sps) {
+            $berkas->sps->update([
+                'is_payment_validated' => true,
+                'tanggal_bayar' => now(),
+                'penerima_kwitansi' => $request->penerima_kwitansi
+            ]);
+        }
 
-        // Update Status Berkas ke Pelaksana Kegiatan
+        // Update status ke tahap berikutnya
         $berkas->update(['status_berkas' => 'pelaksana_kegiatan']);
 
         return back()->with('success', 'Pembayaran divalidasi. Berkas diteruskan ke Pelaksana.');

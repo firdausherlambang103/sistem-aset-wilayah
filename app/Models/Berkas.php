@@ -30,4 +30,10 @@ class Berkas extends Model
     {
         return $this->hasOne(DataPlotting::class, 'berkas_id');
     }
+
+    // Di dalam class Berkas
+    public function sps()
+    {
+        return $this->hasOne(DokumenSps::class, 'berkas_id');
+    }
 }

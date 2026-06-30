@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-// Pastikan file app/Http/Controllers/ProfileController.php sudah Anda buat 
-// sesuai instruksi pada pesan sebelumnya agar tidak error "Target class does not exist".
 use App\Http\Controllers\ProfileController;
 
 // Controllers Mitra
@@ -12,6 +9,7 @@ use App\Http\Controllers\Mitra\BerkasController;
 // Controllers BPN
 use App\Http\Controllers\Bpn\LoketController;
 use App\Http\Controllers\Bpn\PelaksanaController;
+use App\Http\Controllers\Bpn\BackofficeController; // <-- Pastikan ini ada
 
 // Controllers Admin
 use App\Http\Controllers\UserController;
@@ -23,10 +21,24 @@ use App\Http\Controllers\Admin\WilayahController;
 |--------------------------------------------------------------------------
 */
 
-// Jika ingin langsung ke halaman Login
 Route::get('/', function () {
     return redirect('/login');
 });
+
+// --- API TRACKING RIWAYAT BERKAS ---
+Route::middleware('auth')->get('/api/berkas/{id}/riwayat', function($id) {
+    $riwayats = \App\Models\RiwayatBerkas::where('berkas_id', $id)
+                    ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->map(function($r) {
+                        return [
+                            'tanggal' => $r->created_at->format('d M Y, H:i'),
+                            'aksi' => $r->aksi,
+                            'catatan' => $r->catatan
+                        ];
+                    });
+    return response()->json($riwayats);
+})->name('api.berkas.riwayat');
 
 // --- RUTE PROFIL (Bawaan Laravel Breeze) ---
 Route::middleware('auth')->group(function () {
@@ -38,67 +50,53 @@ Route::middleware('auth')->group(function () {
 
 // --- RUTE ADMINISTRATOR ---
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    
-    // Manajemen User dan Approval
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/toggle-approval/{id}', [UserController::class, 'toggleApproval'])->name('users.toggle-approval');
-    
-    // Manajemen Master Wilayah
     Route::get('/wilayah', [WilayahController::class, 'index'])->name('wilayah.index');
     Route::post('/wilayah/kecamatan', [WilayahController::class, 'storeKecamatan'])->name('wilayah.kecamatan.store');
     Route::post('/wilayah/desa', [WilayahController::class, 'storeDesa'])->name('wilayah.desa.store');
-
 });
 
 
 // --- RUTE BPN ---
 Route::middleware(['auth'])->prefix('bpn')->name('bpn.')->group(function () {
-    
     // Dashboard BPN
     Route::get('/dashboard', [LoketController::class, 'dashboard'])->name('dashboard');
 
-    // Ruang Kerja Loket (Terima & Koreksi)
+    // Loket Terima & Koreksi
     Route::get('/loket-terima', [LoketController::class, 'index'])->name('loket.index');
-    
-    // --- FITUR BARU: Pembuatan Berkas Baru oleh Loket ---
-    // Route GET (create) sudah tidak dipakai karena form muncul via Modal Popup
     Route::post('/loket-terima/berkas', [LoketController::class, 'store'])->name('loket.berkas.store');
-    // ----------------------------------------------------
-
     Route::post('/loket-terima/scan', [LoketController::class, 'terimaDariScan'])->name('loket.scan');
     Route::post('/loket-terima/koreksi/{id}', [LoketController::class, 'prosesKoreksi'])->name('loket.koreksi');
 
-    // Ruang Kerja Loket Pembayaran & Validasi SPS
+    // --- FITUR BACKOFFICE ---
+    Route::get('/backoffice', [BackofficeController::class, 'index'])->name('backoffice.index');
+    Route::post('/backoffice/proses/{id}', [BackofficeController::class, 'proses'])->name('backoffice.proses');
+    
+    // Rute Baru: Tolak dan Edit Berkas (Mengatasi error 404)
+    Route::post('/backoffice/tolak/{id}', [BackofficeController::class, 'tolak'])->name('backoffice.tolak');
+    Route::put('/backoffice/update/{id}', [BackofficeController::class, 'update'])->name('backoffice.update');
+    // ------------------------------
+
+    // Loket Pembayaran & Validasi SPS
     Route::get('/loket-pembayaran', [LoketController::class, 'indexPembayaran'])->name('pembayaran.index');
     Route::post('/loket-pembayaran/proses/{id}', [LoketController::class, 'prosesPembayaran'])->name('pembayaran.proses');
 
-    // Ruang Kerja Pelaksana Kegiatan (Plotting)
+    // Pelaksana Kegiatan (Plotting)
     Route::get('/pelaksana', [PelaksanaController::class, 'index'])->name('pelaksana.index');
     Route::post('/pelaksana/selesai/{id}', [PelaksanaController::class, 'selesaikan'])->name('pelaksana.selesaikan');
 
     // Peta Utama / WebGIS Nganjuk
-    Route::get('/peta-utama', function () {
-        return view('map');
-    })->name('peta');
-
+    Route::get('/peta-utama', function () { return view('map'); })->name('peta');
 });
 
 
 // --- RUTE MITRA ---
 Route::middleware(['auth'])->prefix('mitra')->group(function () {
-    
-    // Menampilkan Halaman Dashboard / Berkas Biasa
     Route::get('/berkas-biasa', [BerkasController::class, 'indexBiasa'])->name('mitra.berkas.biasa');
-    
-    // Menampilkan Halaman Plotting
-    Route::get('/plotting', function () {
-        return view('plotting');
-    })->name('mitra.plotting');
-
-    // Endpoint untuk memproses form pengajuan
+    Route::get('/plotting', function () { return view('plotting'); })->name('mitra.plotting');
     Route::post('/berkas/biasa', [BerkasController::class, 'storeBerkasBiasa'])->name('berkas.biasa.store');
     Route::post('/berkas/plotting', [BerkasController::class, 'storeBerkasPlotting'])->name('berkas.plotting.store');
-    
 });
 
 require __DIR__.'/auth.php';

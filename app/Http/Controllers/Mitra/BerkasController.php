@@ -16,71 +16,62 @@ class BerkasController extends Controller
 {
     public function indexBiasa()
     {
-        $berkas = Berkas::where('tipe_berkas', 'biasa')
-                        ->where('mitra_id', auth()->id())
-                        ->orderBy('created_at', 'desc')
-                        ->get();
-                        
-        $kecamatans = Kecamatan::with('desa')->orderBy('nama_kecamatan')->get();
-        $jenisHaks = JenisHak::orderBy('id')->get();
-        
-        // Daftar Jenis Permohonan Standar BPN
-        $jenisPermohonans = [
-            'Pendaftaran Tanah Pertama Kali',
-            'Pemecahan Bidang Tanah',
-            'Penggabungan Bidang Tanah',
-            'Peralihan Hak (Balik Nama Jual Beli)',
-            'Peralihan Hak (Balik Nama Waris)',
-            'Pengecekan Sertipikat',
-            'Penurunan Hak',
-            'Peningkatan Hak (HGB ke HM)',
-            'Pembaruan Hak',
-            'Roya (Penghapusan Hak Tanggungan)'
-        ];
+        $mitraId = auth()->id();
 
-        // Tambahkan variabel $jenisPermohonans ke dalam compact()
-        return view('mitra.ruang_kerja_biasa', compact('berkas', 'kecamatans', 'jenisHaks', 'jenisPermohonans'));
+        // 1. Berkas di Mitra (Status: Draft atau Dikembalikan)
+        $berkasMitra = Berkas::with('sps')
+            ->where('mitra_id', $mitraId)
+            ->where('tipe_berkas', 'biasa')
+            ->whereIn('status_berkas', ['draft', 'dikembalikan'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // 2. Berkas di BPN (Status: Diproses di Loket, Backoffice, Pembayaran, Pelaksana)
+        $berkasBpn = Berkas::with('sps')
+            ->where('mitra_id', $mitraId)
+            ->where('tipe_berkas', 'biasa')
+            ->whereNotIn('status_berkas', ['draft', 'dikembalikan', 'selesai'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // 3. Berkas Selesai
+        $berkasSelesai = Berkas::with('sps')
+            ->where('mitra_id', $mitraId)
+            ->where('tipe_berkas', 'biasa')
+            ->where('status_berkas', 'selesai')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('mitra.ruang_kerja_biasa', compact('berkasMitra', 'berkasBpn', 'berkasSelesai'));
     }
 
-    // 1. Simpan Berkas Biasa + Generate No Berkas Unik
     public function storeBerkasBiasa(Request $request)
     {
-        // Sesuaikan validasi dengan struktur form HTML yang baru (menggunakan ID)
-        $request->validate([
-            'nama_pemohon' => 'required|string',
-            'jenis_permohonan' => 'required',
-            'jenis_hak' => 'required',
-            'nomer_hak' => 'required',
-            'kecamatan_id' => 'required',
-            'desa_id' => 'required',
+        $validated = $request->validate([
+            'nomer_berkas'     => 'required|string',
+            'tahun_berkas'     => 'required|integer',
+            'nama_pemohon'     => 'required|string|max:255',
+            'jenis_permohonan' => 'required|string',
+            'jenis_hak'        => 'required|string',
+            'nomer_hak'        => 'required|string',
+            'kecamatan'        => 'required|string',
+            'desa'             => 'required|string',
         ]);
 
-        // Generate 6 digit alphanumeric acak & pastikan belum ada di DB
-        do {
-            $nomerUrutAcak = strtoupper(Str::random(6));
-        } while (Berkas::where('nomer_berkas', $nomerUrutAcak)->exists());
+        $validated['tipe_berkas'] = 'biasa';
+        $validated['status_berkas'] = 'draft'; 
+        $validated['mitra_id'] = auth()->id();
 
-        // Ambil nama (string) Kecamatan dan Desa berdasarkan ID yang dipilih user
-        $kecamatan = Kecamatan::find($request->kecamatan_id);
-        $desa = Desa::find($request->desa_id);
+        $berkas = Berkas::create($validated);
 
-        $berkas = Berkas::create([
-            'nomer_berkas' => $nomerUrutAcak,
-            'tahun_berkas' => now()->year,
-            'nama_pemohon' => $request->nama_pemohon,
-            'jenis_permohonan' => $request->jenis_permohonan,
-            'jenis_hak' => $request->jenis_hak,
-            'nomer_hak' => $request->nomer_hak,
-            'kecamatan' => $kecamatan ? $kecamatan->nama_kecamatan : '',
-            'desa' => $desa ? $desa->nama_desa : '',
-            'tipe_berkas' => 'biasa',
-            'status_berkas' => 'draft',
-            'mitra_id' => auth()->id(),
+        RiwayatBerkas::create([
+            'berkas_id' => $berkas->id,
+            'dari_user_id' => auth()->id(),
+            'aksi' => 'Dibuat oleh Mitra',
+            'catatan' => 'Berkas baru didaftarkan melalui Ruang Kerja Mitra.'
         ]);
 
-        // Karena form menggunakan mekanisme Submit tradisional, 
-        // kita alihkan (redirect) kembali ke halaman sebelumnya dengan membawa Alert Pesan Sukses
-        return redirect()->back()->with('success', 'Berkas Permohonan baru berhasil dibuat dengan Kode: ' . $berkas->nomer_berkas);
+        return back()->with('success', 'Berkas berhasil dibuat.');
     }
 
     // 2. Simpan Berkas Plotting Spasial (PostGIS GeoJSON)
